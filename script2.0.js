@@ -1,4 +1,3 @@
-/* Versión traducida al español del script (completa) */
 async function fetchNovelContent(url) {
     const response = await fetch(url);
 
@@ -306,7 +305,7 @@ function createProgressTracker(totalItems) {
 }
 
 function formatTime(ms) {
-    if (ms < 1000) return "Por favor espera..."; // menos de 1s
+    if (ms < 1000) return "Por favor espera...";
     
     if (ms < 60000) {
         return `${Math.ceil(ms / 1000)}s`;
@@ -1184,7 +1183,7 @@ async function runCrawler() {
         startInput.input.max = allEpisodeLinks.length;
 
         // End episode input
-        const endInput = createInputGroup('Episodio final', 'number', allEpisodeLinks.length.toString(), 'Número de episodio final');
+        const endInput = createInputGroup('Episodio final', allEpisodeLinks.length.toString(), allEpisodeLinks.length.toString(), 'Número de episodio final');
         rangeContent.appendChild(endInput.group);
         endInput.input.min = 1;
         endInput.input.max = allEpisodeLinks.length;
@@ -1266,63 +1265,63 @@ async function runCrawler() {
         rangeContent.appendChild(rangeButtons);
         
         // Add developer contact link at bottom
-        const contactContainer = document.createElement('div');
-        Object.assign(contactContainer.style, {
+        const contactContainer2 = document.createElement('div');
+        Object.assign(contactContainer2.style, {
             marginTop: '16px',
             textAlign: 'center',
             fontSize: '13px'
         });
         
-        const contactLink = document.createElement('a');
-        contactLink.href = 'mailto:yeorinhieut@gmail.com';
-        contactLink.textContent = 'Contactar al desarrollador';
-        Object.assign(contactLink.style, {
+        const contactLink2 = document.createElement('a');
+        contactLink2.href = 'mailto:yeorinhieut@gmail.com';
+        contactLink2.textContent = 'Contactar al desarrollador';
+        Object.assign(contactLink2.style, {
             color: '#666',
             textDecoration: 'none',
             borderBottom: '1px dotted #999'
         });
         
-        contactLink.onmouseover = () => {
-            contactLink.style.color = '#3a7bd5';
-            contactLink.style.borderBottom = '1px dotted #3a7bd5';
+        contactLink2.onmouseover = () => {
+            contactLink2.style.color = '#3a7bd5';
+            contactLink2.style.borderBottom = '1px dotted #3a7bd5';
         };
         
-        contactLink.onmouseout = () => {
-            contactLink.style.color = '#666';
-            contactLink.style.borderBottom = '1px dotted #999';
+        contactLink2.onmouseout = () => {
+            contactLink2.style.color = '#666';
+            contactLink2.style.borderBottom = '1px dotted #999';
         };
         
-        contactContainer.appendChild(contactLink);
+        contactContainer2.appendChild(contactLink2);
         
         // Add separator
-        const separator = document.createElement('span');
-        separator.textContent = ' · ';
-        separator.style.color = '#999';
-        contactContainer.appendChild(separator);
+        const separator2 = document.createElement('span');
+        separator2.textContent = ' · ';
+        separator2.style.color = '#999';
+        contactContainer2.appendChild(separator2);
         
         // Add issue reporting link
-        const issueLink = document.createElement('a');
-        issueLink.href = 'https://github.com/yeorinhieut/novel-dl/issues';
-        issueLink.textContent = 'Reportar un error';
-        issueLink.target = '_blank'; // Open in new tab
-        Object.assign(issueLink.style, {
+        const issueLink2 = document.createElement('a');
+        issueLink2.href = 'https://github.com/yeorinhieut/novel-dl/issues';
+        issueLink2.textContent = 'Reportar un error';
+        issueLink2.target = '_blank'; // Open in new tab
+        Object.assign(issueLink2.style, {
             color: '#666',
             textDecoration: 'none',
             borderBottom: '1px dotted #999'
         });
         
-        issueLink.onmouseover = () => {
-            issueLink.style.color = '#3a7bd5';
-            issueLink.style.borderBottom = '1px dotted #3a7bd5';
+        issueLink2.onmouseover = () => {
+            issueLink2.style.color = '#3a7bd5';
+            issueLink2.style.borderBottom = '1px dotted #3a7bd5';
         };
         
-        issueLink.onmouseout = () => {
-            issueLink.style.color = '#666';
-            issueLink.style.borderBottom = '1px dotted #999';
+        issueLink2.onmouseout = () => {
+            issueLink2.style.color = '#666';
+            issueLink2.style.borderBottom = '1px dotted #999';
         };
         
-        contactContainer.appendChild(issueLink);
-        rangeContent.appendChild(contactContainer);
+        contactContainer2.appendChild(issueLink2);
+        rangeContent.appendChild(contactContainer2);
         
         rangeDialog.appendChild(rangeContent);
         document.body.appendChild(rangeDialog);
