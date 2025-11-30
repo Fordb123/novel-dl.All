@@ -170,7 +170,7 @@ function createModal(title) {
         lineHeight: '1'
     });
     closeButton.onclick = () => {
-        if (confirm('다운로드를 취소하시겠습니까?')) {
+        if (confirm('¿Desea cancelar la descarga?')) {
             document.body.removeChild(modal);
         }
     };
@@ -305,18 +305,18 @@ function createProgressTracker(totalItems) {
 }
 
 function formatTime(ms) {
-    if (ms < 1000) return "잠시만 기다려주세요...";
+    if (ms < 1000) return "Por favor espera..."; // menos de 1s
     
     if (ms < 60000) {
-        return `${Math.ceil(ms / 1000)}초`;
+        return `${Math.ceil(ms / 1000)}s`;
     } else if (ms < 3600000) {
         const mins = Math.floor(ms / 60000);
         const secs = Math.floor((ms % 60000) / 1000);
-        return `${mins}분 ${secs}초`;
+        return `${mins}m ${secs}s`;
     } else {
         const hours = Math.floor(ms / 3600000);
         const mins = Math.floor((ms % 3600000) / 60000);
-        return `${hours}시간 ${mins}분`;
+        return `${hours}h ${mins}m`;
     }
 }
 
@@ -363,7 +363,7 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
     });
 
     const dialogTitle = document.createElement('h3');
-    dialogTitle.textContent = '저장 방식 선택';
+    dialogTitle.textContent = 'Seleccionar modo de guardado';
     Object.assign(dialogTitle.style, {
         margin: '0 0 20px 0',
         color: '#172238',
@@ -414,13 +414,13 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
         return option;
     };
 
-    optionsContainer.appendChild(createOption('1', '한 파일로 병합', '모든 회차가 하나의 파일로 저장됩니다.'));
-    optionsContainer.appendChild(createOption('2', '각 회차별 저장 (ZIP)', '각 회차를 개별 파일로 ZIP 압축합니다.'));
+    optionsContainer.appendChild(createOption('1', 'Unir en un archivo', 'Todos los episodios se guardarán en un solo archivo.'));
+    optionsContainer.appendChild(createOption('2', 'Guardar por episodio (ZIP)', 'Cada episodio se guardará como un archivo individual dentro de un ZIP.'));
     
     dialogContent.appendChild(optionsContainer);
     
     const cancelButton = document.createElement('button');
-    cancelButton.textContent = '취소';
+    cancelButton.textContent = 'Cancelar';
     Object.assign(cancelButton.style, {
         width: '100%',
         padding: '10px',
@@ -457,7 +457,7 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
     
     const contactLink = document.createElement('a');
     contactLink.href = 'mailto:yeorinhieut@gmail.com';
-    contactLink.textContent = '개발자에게 연락하기';
+    contactLink.textContent = 'Contactar al desarrollador';
     Object.assign(contactLink.style, {
         color: '#666',
         textDecoration: 'none',
@@ -485,7 +485,7 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
     // Add issue reporting link
     const issueLink = document.createElement('a');
     issueLink.href = 'https://github.com/yeorinhieut/novel-dl/issues';
-    issueLink.textContent = '오류 제보하기';
+    issueLink.textContent = 'Reportar un error';
     issueLink.target = '_blank'; // Open in new tab
     Object.assign(issueLink.style, {
         color: '#666',
@@ -517,7 +517,7 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
                 await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
                 zip = new JSZip();
             } catch (e) {
-                alert('ZIP 라이브러리 로드 실패!');
+                alert('¡No se pudo cargar la librería ZIP!');
                 return;
             }
         }
@@ -533,7 +533,7 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
             timeRemaining, 
             progressBar, 
             detailedProgress
-        } = createModal(`"${title}" 다운로드 중`);
+        } = createModal(`"${title}" Descargando`);
         
         document.body.appendChild(modal);
         
@@ -544,7 +544,7 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
         let failedEpisodes = 0;
         let captchaCount = 0;
 
-        statusElement.textContent = '다운로드를 준비하는 중...';
+        statusElement.textContent = 'Preparando la descarga...';
         
         for (let i = startingIndex; i >= endingIndex; i--) {
             const episodeUrl = episodeLinks[i];
@@ -555,23 +555,23 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
 
             const currentEpisode = startingIndex - i + 1;
             const episodeNumber = episodeLinks.length - i;
-            statusElement.textContent = `${episodeNumber}화 다운로드 중... (${currentEpisode}/${totalEpisodes})`;
+            statusElement.textContent = `Descargando episodio ${episodeNumber}... (${currentEpisode}/${totalEpisodes})`;
 
             let result = await fetchNovelContent(episodeUrl);
             if (!result) {
                 captchaCount++;
-                statusElement.textContent = `⚠️ CAPTCHA 감지됨! ${episodeNumber}화를 처리할 수 없습니다.`;
+                statusElement.textContent = `⚠️ CAPTCHA detectado! No se puede procesar el episodio ${episodeNumber}.`;
                 
-                const userConfirmed = confirm(`CAPTCHA가 발견되었습니다!\n${episodeUrl}\n\n캡챠를 해결한 후 확인을 눌러주세요.`);
+                const userConfirmed = confirm(`¡Se ha detectado un CAPTCHA!\n${episodeUrl}\n\nResuélvelo y presiona Aceptar.`);
                 if (!userConfirmed) {
                     failedEpisodes++;
                     continue;
                 }
                 
-                statusElement.textContent = `${episodeNumber}화 다시 시도 중...`;
+                statusElement.textContent = `Reintentando episodio ${episodeNumber}...`;
                 result = await fetchNovelContent(episodeUrl);
                 if (!result) {
-                    statusElement.textContent = `❌ ${episodeNumber}화 다운로드 실패`;
+                    statusElement.textContent = `❌ Falló la descarga del episodio ${episodeNumber}`;
                     failedEpisodes++;
                     continue;
                 }
@@ -590,22 +590,22 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
             
             progressBar.style.width = `${stats.progress}%`;
             progressText.textContent = `${stats.progress}%`;
-            timeRemaining.textContent = `남은 시간: ${stats.remaining}`;
+            timeRemaining.textContent = `Tiempo restante: ${stats.remaining}`;
             
             detailedProgress.innerHTML = `
                 <div style="margin-bottom: 4px; display: flex; justify-content: center; gap: 12px;">
-                    <span>✅ 완료: ${completedEpisodes}화</span>
-                    <span>❌ 실패: ${failedEpisodes}화</span>
-                    <span>⚠️ 캡챠: ${captchaCount}회</span>
+                    <span>✅ Completado: ${completedEpisodes} ep.</span>
+                    <span>❌ Fallidos: ${failedEpisodes} ep.</span>
+                    <span>⚠️ CAPTCHAs: ${captchaCount}</span>
                 </div>
-                <div>소요 시간: ${stats.elapsed} | 처리 속도: ${stats.speed}화/초</div>
+                <div>Tiempo transcurrido: ${stats.elapsed} | Velocidad: ${stats.speed} ep/s</div>
             `;
 
             // Add configurable delay to prevent rate limiting
             await new Promise(r => setTimeout(r, delayMs));
         }
 
-        statusElement.textContent = '✅ 다운로드 완료, 파일 생성 중...';
+        statusElement.textContent = '✅ Descarga completada, generando archivo...';
         progressBar.style.width = '100%';
         progressText.textContent = '100%';
         
@@ -657,7 +657,7 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
             
             // Completion title
             const completionTitle = document.createElement('h3');
-            completionTitle.textContent = '다운로드가 완료되었어요!';
+            completionTitle.textContent = '¡Descarga completada!';
             Object.assign(completionTitle.style, {
                 color: '#172238',
                 fontSize: '18px',
@@ -667,7 +667,7 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
             
             // Completion message
             const completionMessage = document.createElement('p');
-            completionMessage.textContent = `${completedEpisodes}화의 다운로드가 준비되었습니다.`;
+            completionMessage.textContent = `La descarga de ${completedEpisodes} episodios está lista.`;
             Object.assign(completionMessage.style, {
                 color: '#666',
                 margin: '0 0 24px 0',
@@ -677,7 +677,7 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
             
             // Download button
             const downloadBtn = document.createElement('button');
-            downloadBtn.textContent = '다운로드';
+            downloadBtn.textContent = 'Descargar';
             Object.assign(downloadBtn.style, {
                 backgroundColor: '#4CAF50',
                 color: 'white',
@@ -709,7 +709,7 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
                         a.click();
                         
                         // Show a success notification after clicking download
-                        showNotification(`"${title}" 다운로드 시작`, `${completedEpisodes}화가 ZIP 파일로 저장됩니다.`);
+                        showNotification(`"${title}" Descarga iniciada`, `${completedEpisodes} episodios se guardarán en un archivo ZIP.`);
                         document.body.removeChild(completionDialog);
                     });
                 } else {
@@ -720,7 +720,7 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
                     a.click();
                     
                     // Show a success notification after clicking download
-                    showNotification(`"${title}" 다운로드 시작`, `${completedEpisodes}화가 텍스트 파일로 저장됩니다.`);
+                    showNotification(`"${title}" Descarga iniciada`, `${completedEpisodes} episodios se guardarán en un archivo de texto.`);
                     document.body.removeChild(completionDialog);
                 }
             };
@@ -730,7 +730,7 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
             // Developer contact link
             const contactLink = document.createElement('a');
             contactLink.href = 'mailto:yeorinhieut@gmail.com';
-            contactLink.textContent = '개발자에게 연락하기';
+            contactLink.textContent = 'Contactar al desarrollador';
             Object.assign(contactLink.style, {
                 display: 'inline-block',
                 color: '#666',
@@ -760,7 +760,7 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
             // Add issue reporting link
             const issueLink = document.createElement('a');
             issueLink.href = 'https://github.com/yeorinhieut/novel-dl/issues';
-            issueLink.textContent = '오류 제보하기';
+            issueLink.textContent = 'Reportar un error';
             issueLink.target = '_blank'; // Open in new tab
             Object.assign(issueLink.style, {
                 color: '#666',
@@ -857,14 +857,14 @@ async function runCrawler() {
     currentUrl = urlParts;
 
     if (!currentUrl.startsWith(novelPageRule)) {
-        alert('이 스크립트는 북토기 소설 목록 페이지에서 실행해야 합니다.');
+        alert('Este script debe ejecutarse en la página de listado de novelas de Booktoki.');
         return;
     }
 
     const title = extractTitle();
 
     if (!title) {
-        alert('소설 제목을 추출하지 못했습니다.');
+        alert('No se pudo extraer el título de la novela.');
         return;
     }
 
@@ -896,7 +896,7 @@ async function runCrawler() {
     });
 
     const dialogTitle = document.createElement('h3');
-    dialogTitle.textContent = `"${title}" 다운로드 설정`;
+    dialogTitle.textContent = `"${title}" Configuración de descarga`;
     Object.assign(dialogTitle.style, {
         margin: '0 0 20px 0',
         color: '#172238',
@@ -953,11 +953,11 @@ async function runCrawler() {
 
     // Pages input
     const pagesInput = createInputGroup(
-        '소설 목록의 페이지 수', 
+        'Número de páginas del listado', 
         'number', 
         '1', 
-        '페이지 수 입력', 
-        '1000화가 넘지 않는 경우 1, 1000화 이상부터 2~ 입력'
+        'Introduce el número de páginas', 
+        'Si tiene menos de 1000 episodios, ponga 1. Para 1000 o más, ponga 2, etc.'
     );
     dialogContent.appendChild(pagesInput.group);
     pagesInput.input.min = 1;
@@ -973,7 +973,7 @@ async function runCrawler() {
 
     // Cancel button
     const cancelButton = document.createElement('button');
-    cancelButton.textContent = '취소';
+    cancelButton.textContent = 'Cancelar';
     Object.assign(cancelButton.style, {
         flex: '1',
         padding: '10px',
@@ -999,7 +999,7 @@ async function runCrawler() {
 
     // Continue button
     const continueButton = document.createElement('button');
-    continueButton.textContent = '계속';
+    continueButton.textContent = 'Continuar';
     Object.assign(continueButton.style, {
         flex: '1',
         padding: '10px',
@@ -1032,7 +1032,7 @@ async function runCrawler() {
         const totalPages = parseInt(pagesInput.input.value, 10);
 
         if (isNaN(totalPages) || totalPages < 1) {
-            alert('유효한 페이지 수를 입력해주세요.');
+            alert('Por favor ingrese un número de páginas válido.');
             return;
         }
 
@@ -1066,7 +1066,7 @@ async function runCrawler() {
         });
 
         const loadingTitle = document.createElement('h3');
-        loadingTitle.textContent = '에피소드 목록 불러오는 중';
+        loadingTitle.textContent = 'Cargando lista de episodios';
         Object.assign(loadingTitle.style, {
             margin: '0 0 16px 0',
             color: '#172238',
@@ -1076,7 +1076,7 @@ async function runCrawler() {
         loadingContent.appendChild(loadingTitle);
 
         const loadingText = document.createElement('p');
-        loadingText.textContent = '잠시만 기다려주세요...';
+        loadingText.textContent = 'Por favor espere...';
         Object.assign(loadingText.style, {
             margin: '0 0 20px 0',
             fontSize: '14px',
@@ -1112,13 +1112,13 @@ async function runCrawler() {
         // Fetch all episode links with progress updates
         const allEpisodeLinks = [];
         for (let page = 1; page <= totalPages; page++) {
-            loadingText.textContent = `페이지 ${page}/${totalPages} 불러오는 중...`;
+            loadingText.textContent = `Página ${page}/${totalPages} cargando...`;
             const nextPageUrl = `${currentUrl}?spage=${page}`;
             const nextPageDoc = await fetchPage(nextPageUrl);
             if (nextPageDoc) {
                 const nextPageLinks = Array.from(nextPageDoc.querySelectorAll('.item-subject')).map(link => link.getAttribute('href'));
                 allEpisodeLinks.push(...nextPageLinks);
-                loadingText.textContent = `${allEpisodeLinks.length}개 에피소드 발견됨`;
+                loadingText.textContent = `${allEpisodeLinks.length} episodios encontrados`;
             }
             // Small delay to prevent rate limiting
             await new Promise(r => setTimeout(r, 500));
@@ -1127,7 +1127,7 @@ async function runCrawler() {
         document.body.removeChild(loadingDialog);
 
         if (allEpisodeLinks.length === 0) {
-            alert('에피소드 목록을 가져오지 못했습니다.');
+            alert('No se pudo obtener la lista de episodios.');
             return;
         }
 
@@ -1159,7 +1159,7 @@ async function runCrawler() {
         });
 
         const rangeTitle = document.createElement('h3');
-        rangeTitle.textContent = '다운로드 범위 설정';
+        rangeTitle.textContent = 'Configurar rango de descarga';
         Object.assign(rangeTitle.style, {
             margin: '0 0 16px 0',
             color: '#172238',
@@ -1169,7 +1169,7 @@ async function runCrawler() {
         rangeContent.appendChild(rangeTitle);
 
         const episodeCount = document.createElement('div');
-        episodeCount.innerHTML = `<span style="display: inline-block; background-color: #ebf5ff; color: #3a7bd5; padding: 4px 8px; border-radius: 4px; font-weight: 500;">전체 ${allEpisodeLinks.length}화가 발견되었습니다.</span>`;
+        episodeCount.innerHTML = `<span style="display: inline-block; background-color: #ebf5ff; color: #3a7bd5; padding: 4px 8px; border-radius: 4px; font-weight: 500;">Total ${allEpisodeLinks.length} episodios</span>`;
         Object.assign(episodeCount.style, {
             margin: '0 0 20px 0',
             fontSize: '14px'
@@ -1177,24 +1177,24 @@ async function runCrawler() {
         rangeContent.appendChild(episodeCount);
 
         // Start episode input
-        const startInput = createInputGroup('시작 회차', 'number', '1', '시작 회차 번호');
+        const startInput = createInputGroup('Episodio de inicio', 'number', '1', 'Número de episodio de inicio');
         rangeContent.appendChild(startInput.group);
         startInput.input.min = 1;
         startInput.input.max = allEpisodeLinks.length;
 
         // End episode input
-        const endInput = createInputGroup('종료 회차', 'number', allEpisodeLinks.length.toString(), '종료 회차 번호');
+        const endInput = createInputGroup('Episodio final', 'number', allEpisodeLinks.length.toString(), 'Número de episodio final');
         rangeContent.appendChild(endInput.group);
         endInput.input.min = 1;
         endInput.input.max = allEpisodeLinks.length;
         
         // Delay input with warning
         const delayInput = createInputGroup(
-            '딜레이 설정 (밀리초)', 
+            'Retraso (ms)', 
             'number', 
             '5000', 
-            '딜레이 입력', 
-            '⚠️ 권장: 기본값(5000ms=5초)을 유지하세요. 변경 시 차단 위험이 있습니다.'
+            'Introduce el retraso en ms', 
+            '⚠️ Recomendado: mantén 5000ms (5s). Cambiarlo puede aumentar el riesgo de bloqueo.'
         );
         rangeContent.appendChild(delayInput.group);
         delayInput.input.min = 1000;
@@ -1212,7 +1212,7 @@ async function runCrawler() {
 
         // Cancel button
         const rangeCancelButton = document.createElement('button');
-        rangeCancelButton.textContent = '취소';
+        rangeCancelButton.textContent = 'Cancelar';
         Object.assign(rangeCancelButton.style, {
             flex: '1',
             padding: '10px',
@@ -1238,7 +1238,7 @@ async function runCrawler() {
 
         // Download button
         const downloadButton = document.createElement('button');
-        downloadButton.textContent = '다운로드';
+        downloadButton.textContent = 'Descargar';
         Object.assign(downloadButton.style, {
             flex: '1',
             padding: '10px',
@@ -1274,7 +1274,7 @@ async function runCrawler() {
         
         const contactLink = document.createElement('a');
         contactLink.href = 'mailto:yeorinhieut@gmail.com';
-        contactLink.textContent = '개발자에게 연락하기';
+        contactLink.textContent = 'Contactar al desarrollador';
         Object.assign(contactLink.style, {
             color: '#666',
             textDecoration: 'none',
@@ -1302,7 +1302,7 @@ async function runCrawler() {
         // Add issue reporting link
         const issueLink = document.createElement('a');
         issueLink.href = 'https://github.com/yeorinhieut/novel-dl/issues';
-        issueLink.textContent = '오류 제보하기';
+        issueLink.textContent = 'Reportar un error';
         issueLink.target = '_blank'; // Open in new tab
         Object.assign(issueLink.style, {
             color: '#666',
@@ -1335,13 +1335,13 @@ async function runCrawler() {
                 startEpisode < 1 || 
                 endEpisode < startEpisode || 
                 endEpisode > allEpisodeLinks.length) {
-                alert('유효한 회차 범위를 입력해주세요.');
+                alert('Por favor ingrese un rango de episodios válido.');
                 return;
             }
 
             const delay = parseInt(delayInput.input.value, 10);
             if (isNaN(delay) || delay < 1000) {
-                alert('유효한 딜레이 값을 입력해주세요. (최소 1000ms)');
+                alert('Por favor ingrese un valor de retraso válido (mínimo 1000ms).');
                 return;
             }
 
