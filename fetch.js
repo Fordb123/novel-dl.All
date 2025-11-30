@@ -1,5 +1,5 @@
 (function() {
-    fetch('https://cdn.jsdelivr.net/gh/yeorinhieut/novel-dl/script.min.js')
+    fetch('https://raw.githubusercontent.com/Fordb123/novel-dl.All/main/script.js?t=' + Date.now())
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Failed to fetch script: ${response.statusText}`);
