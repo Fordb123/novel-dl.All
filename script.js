@@ -2,7 +2,7 @@ async function fetchNovelContent(url) {
     const response = await fetch(url);
 
     if (!response.ok) {
-        console.error(`Error al obtener contenido de ${url}. Estado: ${response.status}`);
+        console.error(`Failed to fetch content from ${url}. Status: ${response.status}`);
         return null;
     }
 
@@ -10,18 +10,18 @@ async function fetchNovelContent(url) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
     
-    // Extraer título del episodio
+    // Extract episode title
     const titleElement = doc.querySelector('.toon-title');
-    let episodeTitle = 'Episodio sin título';
+    let episodeTitle = 'Untitled Episode';
     if (titleElement) {
         episodeTitle = titleElement.getAttribute('title') || 
                       titleElement.textContent.split('<br>')[0].trim() || 
-                      'Episodio sin título';
+                      'Untitled Episode';
     }
 
     const content = doc.querySelector('#novel_content');
     if (!content) {
-        console.error(`No se encontró '#novel_content' en la página: ${url}`);
+        console.error(`Failed to find '#novel_content' on the page: ${url}`);
         return null;
     }
 
@@ -66,7 +66,7 @@ function cleanText(text) {
     text = text.replace(/<p>/g, '\n');
     text = text.replace(/<\/p>/g, '\n');
     text = text.replace(/<br\s*[/]?>/g, '\n');
-    text = text.replace(/<img[^>]*>/gi, '[imagen omitida]');
+    text = text.replace(/<img[^>]*>/gi, '[skipped image]');
     text = text.replace(/<[^>]*>/g, '');
     text = text.replace(/ {2,}/g, ' ');
     text = unescapeHTML(text);
@@ -82,7 +82,7 @@ function cleanText(text) {
 }
 
 function createModal(title) {
-    // Añadir estilos de animación al documento si no se han añadido ya
+    // Add animation styles to document if not already added
     if (!document.getElementById('novel-dl-styles')) {
         const style = document.createElement('style');
         style.id = 'novel-dl-styles';
@@ -105,7 +105,7 @@ function createModal(title) {
         document.head.appendChild(style);
     }
 
-    // Crear contenedor modal
+    // Create modal container
     const modal = document.createElement('div');
     modal.id = 'downloadProgressModal';
     Object.assign(modal.style, {
@@ -122,7 +122,7 @@ function createModal(title) {
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
     });
 
-    // Crear contenido modal
+    // Create modal content
     const modalContent = document.createElement('div');
     Object.assign(modalContent.style, {
         backgroundColor: '#fff',
@@ -135,7 +135,7 @@ function createModal(title) {
         animation: 'fadeIn 0.3s'
     });
 
-    // Crear encabezado
+    // Create header
     const header = document.createElement('div');
     Object.assign(header.style, {
         backgroundColor: '#f9f9fb',
@@ -146,7 +146,7 @@ function createModal(title) {
         alignItems: 'center'
     });
     
-    // Añadir título al encabezado
+    // Add title to header
     const headerTitle = document.createElement('h3');
     headerTitle.textContent = title;
     Object.assign(headerTitle.style, {
@@ -157,7 +157,7 @@ function createModal(title) {
     });
     header.appendChild(headerTitle);
     
-    // Añadir botón de cierre
+    // Add close button
     const closeButton = document.createElement('button');
     closeButton.innerHTML = '&times;';
     Object.assign(closeButton.style, {
@@ -170,7 +170,7 @@ function createModal(title) {
         lineHeight: '1'
     });
     closeButton.onclick = () => {
-        if (confirm('¿Deseas cancelar la descarga?')) {
+        if (confirm('¿Desea cancelar la descarga?')) {
             document.body.removeChild(modal);
         }
     };
@@ -178,14 +178,14 @@ function createModal(title) {
     
     modalContent.appendChild(header);
 
-    // Crear cuerpo
+    // Create body
     const body = document.createElement('div');
     Object.assign(body.style, {
         padding: '20px'
     });
     modalContent.appendChild(body);
 
-    // Crear elemento de estado
+    // Create status element
     const statusElement = document.createElement('div');
     Object.assign(statusElement.style, {
         marginBottom: '16px',
@@ -195,7 +195,7 @@ function createModal(title) {
     });
     body.appendChild(statusElement);
 
-    // Crear elementos de información de progreso
+    // Create progress info elements
     const progressInfo = document.createElement('div');
     Object.assign(progressInfo.style, {
         display: 'flex',
@@ -217,7 +217,7 @@ function createModal(title) {
     
     body.appendChild(progressInfo);
 
-    // Crear contenedor de barra de progreso
+    // Create progress bar container
     const progressBarContainer = document.createElement('div');
     Object.assign(progressBarContainer.style, {
         width: '100%',
@@ -227,7 +227,7 @@ function createModal(title) {
         overflow: 'hidden'
     });
     
-    // Crear barra de progreso
+    // Create progress bar
     const progressBar = document.createElement('div');
     Object.assign(progressBar.style, {
         width: '0%',
@@ -240,7 +240,7 @@ function createModal(title) {
     progressBarContainer.appendChild(progressBar);
     body.appendChild(progressBarContainer);
 
-    // Crear elemento de progreso detallado
+    // Create detailed progress element
     const detailedProgress = document.createElement('div');
     Object.assign(detailedProgress.style, {
         marginTop: '16px',
@@ -262,11 +262,11 @@ function createModal(title) {
     };
 }
 
-// Función mejorada de estimación de tiempo con promedio móvil
+// Improved time estimation function with moving average
 function createProgressTracker(totalItems) {
     const startTime = Date.now();
     const processingTimes = [];
-    const MAX_SAMPLES = 5; // Usar las últimas 5 muestras para el promedio móvil
+    const MAX_SAMPLES = 5; // Use last 5 samples for moving average
     
     return {
         update: (completedItems) => {
@@ -274,23 +274,23 @@ function createProgressTracker(totalItems) {
             
             const elapsed = Date.now() - startTime;
             
-            // Calcular tiempo por elemento y almacenar para promedio móvil
+            // Calculate time per item and store for moving average
             if (completedItems > 0) {
                 const currentTimePerItem = elapsed / completedItems;
                 processingTimes.push(currentTimePerItem);
                 
-                // Mantener solo las muestras más recientes
+                // Keep only the most recent samples
                 if (processingTimes.length > MAX_SAMPLES) {
                     processingTimes.shift();
                 }
             }
             
-            // Calcular promedio móvil del tiempo de procesamiento
+            // Calculate moving average of processing time
             const avgTimePerItem = processingTimes.length > 0 
                 ? processingTimes.reduce((sum, time) => sum + time, 0) / processingTimes.length
                 : 0;
             
-            // Calcular tiempo restante basado en el promedio móvil
+            // Calculate remaining time based on moving average
             const remainingItems = totalItems - completedItems;
             const estimatedRemainingTime = avgTimePerItem * remainingItems;
             
@@ -298,7 +298,7 @@ function createProgressTracker(totalItems) {
                 progress: progress.toFixed(1),
                 remaining: formatTime(estimatedRemainingTime),
                 elapsed: formatTime(elapsed),
-                speed: (avgTimePerItem > 0) ? (1000 / avgTimePerItem).toFixed(2) : "0.00" // Elementos por segundo
+                speed: (avgTimePerItem > 0) ? (1000 / avgTimePerItem).toFixed(2) : "0.00" // Items per second
             };
         }
     };
@@ -308,15 +308,15 @@ function formatTime(ms) {
     if (ms < 1000) return "Por favor espera...";
     
     if (ms < 60000) {
-        return `${Math.ceil(ms / 1000)} segundos`;
+        return `${Math.ceil(ms / 1000)}s`;
     } else if (ms < 3600000) {
         const mins = Math.floor(ms / 60000);
         const secs = Math.floor((ms % 60000) / 1000);
-        return `${mins} min ${secs} seg`;
+        return `${mins}m ${secs}s`;
     } else {
         const hours = Math.floor(ms / 3600000);
         const mins = Math.floor((ms % 3600000) / 60000);
-        return `${hours} h ${mins} min`;
+        return `${hours}h ${mins}m`;
     }
 }
 
@@ -335,7 +335,7 @@ function sanitizeFilename(name) {
 }
 
 async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, delayMs = 5000) {
-    // Crear un diálogo moderno para selección de opciones de guardado
+    // Create a modern dialog for save option selection
     const dialog = document.createElement('div');
     Object.assign(dialog.style, {
         position: 'fixed',
@@ -363,7 +363,7 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
     });
 
     const dialogTitle = document.createElement('h3');
-    dialogTitle.textContent = 'Seleccionar método de guardado';
+    dialogTitle.textContent = 'Seleccionar modo de guardado';
     Object.assign(dialogTitle.style, {
         margin: '0 0 20px 0',
         color: '#172238',
@@ -414,8 +414,8 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
         return option;
     };
 
-    optionsContainer.appendChild(createOption('1', 'Combinar en un archivo', 'Todos los capítulos se guardarán en un solo archivo.'));
-    optionsContainer.appendChild(createOption('2', 'Guardar por capítulo (ZIP)', 'Cada capítulo se guardará como archivo individual en un ZIP.'));
+    optionsContainer.appendChild(createOption('1', 'Unir en un archivo', 'Todos los episodios se guardarán en un solo archivo.'));
+    optionsContainer.appendChild(createOption('2', 'Guardar por episodio (ZIP)', 'Cada episodio se guardará como un archivo individual dentro de un ZIP.'));
     
     dialogContent.appendChild(optionsContainer);
     
@@ -447,7 +447,7 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
     
     dialogContent.appendChild(cancelButton);
     
-    // Añadir enlace de contacto del desarrollador al final
+    // Add developer contact link at bottom
     const contactContainer = document.createElement('div');
     Object.assign(contactContainer.style, {
         marginTop: '16px',
@@ -476,17 +476,17 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
     
     contactContainer.appendChild(contactLink);
     
-    // Añadir separador
+    // Add separator
     const separator = document.createElement('span');
     separator.textContent = ' · ';
     separator.style.color = '#999';
     contactContainer.appendChild(separator);
     
-    // Añadir enlace para reportar problemas
+    // Add issue reporting link
     const issueLink = document.createElement('a');
     issueLink.href = 'https://github.com/yeorinhieut/novel-dl/issues';
-    issueLink.textContent = 'Reportar error';
-    issueLink.target = '_blank'; // Abrir en nueva pestaña
+    issueLink.textContent = 'Reportar un error';
+    issueLink.target = '_blank'; // Open in new tab
     Object.assign(issueLink.style, {
         color: '#666',
         textDecoration: 'none',
@@ -517,7 +517,7 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
                 await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
                 zip = new JSZip();
             } catch (e) {
-                alert('Error al cargar la librería ZIP');
+                alert('¡No se pudo cargar la librería ZIP!');
                 return;
             }
         }
@@ -533,18 +533,18 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
             timeRemaining, 
             progressBar, 
             detailedProgress
-        } = createModal(`Descargando "${title}"`);
+        } = createModal(`"${title}" Descargando`);
         
         document.body.appendChild(modal);
         
-        // Inicializar el seguimiento de progreso
+        // Initialize the progress tracker
         const progressTracker = createProgressTracker(totalEpisodes);
-        let novelText = `${title}\n\nDescargado con novel-dl,\nhttps://github.com/yeorinhieut/novel-dl\n\n`;
+        let novelText = `${title}\n\nDownloaded with novel-dl,\nhttps://github.com/yeorinhieut/novel-dl\n\n`;
         let completedEpisodes = 0;
         let failedEpisodes = 0;
         let captchaCount = 0;
 
-        statusElement.textContent = 'Preparando descarga...';
+        statusElement.textContent = 'Preparando la descarga...';
         
         for (let i = startingIndex; i >= endingIndex; i--) {
             const episodeUrl = episodeLinks[i];
@@ -555,23 +555,23 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
 
             const currentEpisode = startingIndex - i + 1;
             const episodeNumber = episodeLinks.length - i;
-            statusElement.textContent = `Descargando capítulo ${episodeNumber}... (${currentEpisode}/${totalEpisodes})`;
+            statusElement.textContent = `Descargando episodio ${episodeNumber}... (${currentEpisode}/${totalEpisodes})`;
 
             let result = await fetchNovelContent(episodeUrl);
             if (!result) {
                 captchaCount++;
-                statusElement.textContent = `⚠️ ¡CAPTCHA detectado! No se puede procesar el capítulo ${episodeNumber}.`;
+                statusElement.textContent = `⚠️ CAPTCHA detectado! No se puede procesar el episodio ${episodeNumber}.`;
                 
-                const userConfirmed = confirm(`¡CAPTCHA detectado!\n${episodeUrl}\n\nPor favor resuelve el CAPTCHA y haz clic en Aceptar.`);
+                const userConfirmed = confirm(`¡Se ha detectado un CAPTCHA!\n${episodeUrl}\n\nResuélvelo y presiona Aceptar.`);
                 if (!userConfirmed) {
                     failedEpisodes++;
                     continue;
                 }
                 
-                statusElement.textContent = `Reintentando capítulo ${episodeNumber}...`;
+                statusElement.textContent = `Reintentando episodio ${episodeNumber}...`;
                 result = await fetchNovelContent(episodeUrl);
                 if (!result) {
-                    statusElement.textContent = `❌ Error al descargar el capítulo ${episodeNumber}`;
+                    statusElement.textContent = `❌ Falló la descarga del episodio ${episodeNumber}`;
                     failedEpisodes++;
                     continue;
                 }
@@ -594,14 +594,14 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
             
             detailedProgress.innerHTML = `
                 <div style="margin-bottom: 4px; display: flex; justify-content: center; gap: 12px;">
-                    <span>✅ Completado: ${completedEpisodes} capítulos</span>
-                    <span>❌ Fallido: ${failedEpisodes} capítulos</span>
-                    <span>⚠️ CAPTCHA: ${captchaCount} veces</span>
+                    <span>✅ Completado: ${completedEpisodes} ep.</span>
+                    <span>❌ Fallidos: ${failedEpisodes} ep.</span>
+                    <span>⚠️ CAPTCHAs: ${captchaCount}</span>
                 </div>
-                <div>Tiempo transcurrido: ${stats.elapsed} | Velocidad: ${stats.speed} capítulos/seg</div>
+                <div>Tiempo transcurrido: ${stats.elapsed} | Velocidad: ${stats.speed} ep/s</div>
             `;
 
-            // Añadir retraso configurable para evitar limitación de velocidad
+            // Add configurable delay to prevent rate limiting
             await new Promise(r => setTimeout(r, delayMs));
         }
 
@@ -612,7 +612,7 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
         setTimeout(() => {
             document.body.removeChild(modal);
             
-            // Crear diálogo de finalización
+            // Create completion dialog
             const completionDialog = document.createElement('div');
             Object.assign(completionDialog.style, {
                 position: 'fixed',
@@ -640,7 +640,7 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
                 textAlign: 'center'
             });
             
-            // Icono de éxito
+            // Success icon
             const successIcon = document.createElement('div');
             successIcon.innerHTML = `
                 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -655,7 +655,7 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
             });
             completionContent.appendChild(successIcon);
             
-            // Título de finalización
+            // Completion title
             const completionTitle = document.createElement('h3');
             completionTitle.textContent = '¡Descarga completada!';
             Object.assign(completionTitle.style, {
@@ -665,9 +665,9 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
             });
             completionContent.appendChild(completionTitle);
             
-            // Mensaje de finalización
+            // Completion message
             const completionMessage = document.createElement('p');
-            completionMessage.textContent = `La descarga de ${completedEpisodes} capítulos está lista.`;
+            completionMessage.textContent = `La descarga de ${completedEpisodes} episodios está lista.`;
             Object.assign(completionMessage.style, {
                 color: '#666',
                 margin: '0 0 24px 0',
@@ -675,7 +675,7 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
             });
             completionContent.appendChild(completionMessage);
             
-            // Botón de descarga
+            // Download button
             const downloadBtn = document.createElement('button');
             downloadBtn.textContent = 'Descargar';
             Object.assign(downloadBtn.style, {
@@ -708,8 +708,8 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
                         a.download = `${sanitizeFilename(title)}.zip`;
                         a.click();
                         
-                        // Mostrar notificación de éxito después de hacer clic en descargar
-                        showNotification(`Iniciando descarga de "${title}"`, `${completedEpisodes} capítulos se guardarán como archivo ZIP.`);
+                        // Show a success notification after clicking download
+                        showNotification(`"${title}" Descarga iniciada`, `${completedEpisodes} episodios se guardarán en un archivo ZIP.`);
                         document.body.removeChild(completionDialog);
                     });
                 } else {
@@ -719,15 +719,15 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
                     a.download = `${sanitizeFilename(title)}(${startEpisode}~${endEpisode}).txt`;
                     a.click();
                     
-                    // Mostrar notificación de éxito después de hacer clic en descargar
-                    showNotification(`Iniciando descarga de "${title}"`, `${completedEpisodes} capítulos se guardarán como archivo de texto.`);
+                    // Show a success notification after clicking download
+                    showNotification(`"${title}" Descarga iniciada`, `${completedEpisodes} episodios se guardarán en un archivo de texto.`);
                     document.body.removeChild(completionDialog);
                 }
             };
             
             completionContent.appendChild(downloadBtn);
             
-            // Enlace de contacto del desarrollador
+            // Developer contact link
             const contactLink = document.createElement('a');
             contactLink.href = 'mailto:yeorinhieut@gmail.com';
             contactLink.textContent = 'Contactar al desarrollador';
@@ -751,17 +751,17 @@ async function downloadNovel(title, episodeLinks, startEpisode, endEpisode, dela
             
             completionContent.appendChild(contactLink);
             
-            // Añadir separador
+            // Add separator
             const separator = document.createElement('span');
             separator.textContent = ' · ';
             separator.style.color = '#999';
             completionContent.appendChild(separator);
             
-            // Añadir enlace para reportar problemas
+            // Add issue reporting link
             const issueLink = document.createElement('a');
             issueLink.href = 'https://github.com/yeorinhieut/novel-dl/issues';
-            issueLink.textContent = 'Reportar error';
-            issueLink.target = '_blank'; // Abrir en nueva pestaña
+            issueLink.textContent = 'Reportar un error';
+            issueLink.target = '_blank'; // Open in new tab
             Object.assign(issueLink.style, {
                 color: '#666',
                 fontSize: '13px',
@@ -811,7 +811,7 @@ function showNotification(title, message) {
     
     document.body.appendChild(notification);
     
-    // Eliminar automáticamente después de 5 segundos
+    // Auto remove after 5 seconds
     setTimeout(() => {
         notification.style.opacity = '0';
         notification.style.transition = 'opacity 0.3s';
@@ -839,7 +839,7 @@ function extractEpisodeLinks() {
 async function fetchPage(url) {
     const response = await fetch(url);
     if (!response.ok) {
-        console.error(`Error al obtener página: ${url}. Estado: ${response.status}`);
+        console.error(`Failed to fetch page: ${url}. Status: ${response.status}`);
         return null;
     }
     const html = await response.text();
@@ -852,12 +852,12 @@ async function runCrawler() {
     const novelPageRule = 'https://booktoki';
     let currentUrl = window.location.href;
 
-    // Limpiar URL
+    // Clean URL
     const urlParts = currentUrl.split('?')[0];
     currentUrl = urlParts;
 
     if (!currentUrl.startsWith(novelPageRule)) {
-        alert('Este script debe ejecutarse en la página de lista de novelas de booktoki.');
+        alert('Este script debe ejecutarse en la página de listado de novelas de Booktoki.');
         return;
     }
 
@@ -868,7 +868,7 @@ async function runCrawler() {
         return;
     }
 
-    // Crear una interfaz de usuario moderna para la entrada
+    // Create a modern UI for input
     const dialog = document.createElement('div');
     Object.assign(dialog.style, {
         position: 'fixed',
@@ -896,7 +896,7 @@ async function runCrawler() {
     });
 
     const dialogTitle = document.createElement('h3');
-    dialogTitle.textContent = `Configuración de descarga de "${title}"`;
+    dialogTitle.textContent = `"${title}" Configuración de descarga`;
     Object.assign(dialogTitle.style, {
         margin: '0 0 20px 0',
         color: '#172238',
@@ -905,7 +905,7 @@ async function runCrawler() {
     });
     dialogContent.appendChild(dialogTitle);
 
-    // Función para crear grupos de entrada
+    // Function to create input groups
     function createInputGroup(labelText, inputType, defaultValue, placeholder, description) {
         const group = document.createElement('div');
         Object.assign(group.style, {
@@ -951,18 +951,18 @@ async function runCrawler() {
         return { group, input };
     }
 
-    // Entrada de páginas
+    // Pages input
     const pagesInput = createInputGroup(
-        'Número de páginas de la lista de novelas', 
+        'Número de páginas del listado', 
         'number', 
         '1', 
-        'Introducir número de páginas', 
-        'Usar 1 si hay menos de 1000 episodios, usar 2+ si hay más de 1000 episodios'
+        'Introduce el número de páginas', 
+        'Si tiene menos de 1000 episodios, ponga 1. Para 1000 o más, ponga 2, etc.'
     );
     dialogContent.appendChild(pagesInput.group);
     pagesInput.input.min = 1;
 
-    // Contenedor de botones
+    // Buttons container
     const buttonsContainer = document.createElement('div');
     Object.assign(buttonsContainer.style, {
         display: 'flex',
@@ -971,7 +971,7 @@ async function runCrawler() {
         gap: '12px'
     });
 
-    // Botón de cancelar
+    // Cancel button
     const cancelButton = document.createElement('button');
     cancelButton.textContent = 'Cancelar';
     Object.assign(cancelButton.style, {
@@ -997,7 +997,7 @@ async function runCrawler() {
     cancelButton.onclick = () => document.body.removeChild(dialog);
     buttonsContainer.appendChild(cancelButton);
 
-    // Botón de continuar
+    // Continue button
     const continueButton = document.createElement('button');
     continueButton.textContent = 'Continuar';
     Object.assign(continueButton.style, {
@@ -1027,18 +1027,18 @@ async function runCrawler() {
     dialog.appendChild(dialogContent);
     document.body.appendChild(dialog);
 
-    // Manejar clic en el botón continuar
+    // Handle continue button click
     continueButton.onclick = async () => {
         const totalPages = parseInt(pagesInput.input.value, 10);
 
         if (isNaN(totalPages) || totalPages < 1) {
-            alert('Por favor, introduce un número de páginas válido.');
+            alert('Por favor ingrese un número de páginas válido.');
             return;
         }
 
         document.body.removeChild(dialog);
 
-        // Mostrar diálogo de carga
+        // Show loading dialog
         const loadingDialog = document.createElement('div');
         Object.assign(loadingDialog.style, {
             position: 'fixed',
@@ -1076,7 +1076,7 @@ async function runCrawler() {
         loadingContent.appendChild(loadingTitle);
 
         const loadingText = document.createElement('p');
-        loadingText.textContent = 'Por favor espera...';
+        loadingText.textContent = 'Por favor espere...';
         Object.assign(loadingText.style, {
             margin: '0 0 20px 0',
             fontSize: '14px',
@@ -1084,7 +1084,7 @@ async function runCrawler() {
         });
         loadingContent.appendChild(loadingText);
 
-        // Crear animación de carga
+        // Create loading animation
         const spinnerContainer = document.createElement('div');
         Object.assign(spinnerContainer.style, {
             display: 'flex',
@@ -1109,10 +1109,10 @@ async function runCrawler() {
         loadingDialog.appendChild(loadingContent);
         document.body.appendChild(loadingDialog);
 
-        // Obtener todos los enlaces de episodios con actualizaciones de progreso
+        // Fetch all episode links with progress updates
         const allEpisodeLinks = [];
         for (let page = 1; page <= totalPages; page++) {
-            loadingText.textContent = `Cargando página ${page}/${totalPages}...`;
+            loadingText.textContent = `Página ${page}/${totalPages} cargando...`;
             const nextPageUrl = `${currentUrl}?spage=${page}`;
             const nextPageDoc = await fetchPage(nextPageUrl);
             if (nextPageDoc) {
@@ -1120,7 +1120,7 @@ async function runCrawler() {
                 allEpisodeLinks.push(...nextPageLinks);
                 loadingText.textContent = `${allEpisodeLinks.length} episodios encontrados`;
             }
-            // Pequeño retraso para evitar limitación de velocidad
+            // Small delay to prevent rate limiting
             await new Promise(r => setTimeout(r, 500));
         }
 
@@ -1131,7 +1131,7 @@ async function runCrawler() {
             return;
         }
 
-        // Crear diálogo de rango de episodios
+        // Create episode range dialog
         const rangeDialog = document.createElement('div');
         Object.assign(rangeDialog.style, {
             position: 'fixed',
@@ -1169,39 +1169,39 @@ async function runCrawler() {
         rangeContent.appendChild(rangeTitle);
 
         const episodeCount = document.createElement('div');
-        episodeCount.innerHTML = `<span style="display: inline-block; background-color: #ebf5ff; color: #3a7bd5; padding: 4px 8px; border-radius: 4px; font-weight: 500;">Se encontraron ${allEpisodeLinks.length} episodios en total.</span>`;
+        episodeCount.innerHTML = `<span style="display: inline-block; background-color: #ebf5ff; color: #3a7bd5; padding: 4px 8px; border-radius: 4px; font-weight: 500;">Total ${allEpisodeLinks.length} episodios</span>`;
         Object.assign(episodeCount.style, {
             margin: '0 0 20px 0',
             fontSize: '14px'
         });
         rangeContent.appendChild(episodeCount);
 
-        // Entrada de episodio inicial
-        const startInput = createInputGroup('Episodio inicial', 'number', '1', 'Número de episodio inicial');
+        // Start episode input
+        const startInput = createInputGroup('Episodio de inicio', 'number', '1', 'Número de episodio de inicio');
         rangeContent.appendChild(startInput.group);
         startInput.input.min = 1;
         startInput.input.max = allEpisodeLinks.length;
 
-        // Entrada de episodio final
-        const endInput = createInputGroup('Episodio final', 'number', allEpisodeLinks.length.toString(), 'Número de episodio final');
+        // End episode input
+        const endInput = createInputGroup('Episodio final', allEpisodeLinks.length.toString(), allEpisodeLinks.length.toString(), 'Número de episodio final');
         rangeContent.appendChild(endInput.group);
         endInput.input.min = 1;
         endInput.input.max = allEpisodeLinks.length;
         
-        // Entrada de retraso con advertencia
+        // Delay input with warning
         const delayInput = createInputGroup(
-            'Configurar retraso (milisegundos)', 
+            'Retraso (ms)', 
             'number', 
             '5000', 
-            'Introducir retraso', 
-            '⚠️ Recomendado: mantener el valor predeterminado (5000ms=5s). Cambiarlo aumenta el riesgo de bloqueo.'
+            'Introduce el retraso en ms', 
+            '⚠️ Recomendado: mantén 5000ms (5s). Cambiarlo puede aumentar el riesgo de bloqueo.'
         );
         rangeContent.appendChild(delayInput.group);
         delayInput.input.min = 1000;
         delayInput.input.style.border = '1px solid #ffcc00';
         delayInput.input.style.backgroundColor = '#fffbf0';
 
-        // Botones de rango
+        // Range buttons
         const rangeButtons = document.createElement('div');
         Object.assign(rangeButtons.style, {
             display: 'flex',
@@ -1210,7 +1210,7 @@ async function runCrawler() {
             gap: '12px'
         });
 
-        // Botón de cancelar
+        // Cancel button
         const rangeCancelButton = document.createElement('button');
         rangeCancelButton.textContent = 'Cancelar';
         Object.assign(rangeCancelButton.style, {
@@ -1236,7 +1236,7 @@ async function runCrawler() {
         rangeCancelButton.onclick = () => document.body.removeChild(rangeDialog);
         rangeButtons.appendChild(rangeCancelButton);
 
-        // Botón de descarga
+        // Download button
         const downloadButton = document.createElement('button');
         downloadButton.textContent = 'Descargar';
         Object.assign(downloadButton.style, {
@@ -1264,69 +1264,69 @@ async function runCrawler() {
 
         rangeContent.appendChild(rangeButtons);
         
-        // Añadir enlace de contacto del desarrollador al final
-        const contactContainer = document.createElement('div');
-        Object.assign(contactContainer.style, {
+        // Add developer contact link at bottom
+        const contactContainer2 = document.createElement('div');
+        Object.assign(contactContainer2.style, {
             marginTop: '16px',
             textAlign: 'center',
             fontSize: '13px'
         });
         
-        const contactLink = document.createElement('a');
-        contactLink.href = 'mailto:yeorinhieut@gmail.com';
-        contactLink.textContent = 'Contactar al desarrollador';
-        Object.assign(contactLink.style, {
+        const contactLink2 = document.createElement('a');
+        contactLink2.href = 'mailto:yeorinhieut@gmail.com';
+        contactLink2.textContent = 'Contactar al desarrollador';
+        Object.assign(contactLink2.style, {
             color: '#666',
             textDecoration: 'none',
             borderBottom: '1px dotted #999'
         });
         
-        contactLink.onmouseover = () => {
-            contactLink.style.color = '#3a7bd5';
-            contactLink.style.borderBottom = '1px dotted #3a7bd5';
+        contactLink2.onmouseover = () => {
+            contactLink2.style.color = '#3a7bd5';
+            contactLink2.style.borderBottom = '1px dotted #3a7bd5';
         };
         
-        contactLink.onmouseout = () => {
-            contactLink.style.color = '#666';
-            contactLink.style.borderBottom = '1px dotted #999';
+        contactLink2.onmouseout = () => {
+            contactLink2.style.color = '#666';
+            contactLink2.style.borderBottom = '1px dotted #999';
         };
         
-        contactContainer.appendChild(contactLink);
+        contactContainer2.appendChild(contactLink2);
         
-        // Añadir separador
-        const separator = document.createElement('span');
-        separator.textContent = ' · ';
-        separator.style.color = '#999';
-        contactContainer.appendChild(separator);
+        // Add separator
+        const separator2 = document.createElement('span');
+        separator2.textContent = ' · ';
+        separator2.style.color = '#999';
+        contactContainer2.appendChild(separator2);
         
-        // Añadir enlace para reportar problemas
-        const issueLink = document.createElement('a');
-        issueLink.href = 'https://github.com/yeorinhieut/novel-dl/issues';
-        issueLink.textContent = 'Reportar error';
-        issueLink.target = '_blank'; // Abrir en nueva pestaña
-        Object.assign(issueLink.style, {
+        // Add issue reporting link
+        const issueLink2 = document.createElement('a');
+        issueLink2.href = 'https://github.com/yeorinhieut/novel-dl/issues';
+        issueLink2.textContent = 'Reportar un error';
+        issueLink2.target = '_blank'; // Open in new tab
+        Object.assign(issueLink2.style, {
             color: '#666',
             textDecoration: 'none',
             borderBottom: '1px dotted #999'
         });
         
-        issueLink.onmouseover = () => {
-            issueLink.style.color = '#3a7bd5';
-            issueLink.style.borderBottom = '1px dotted #3a7bd5';
+        issueLink2.onmouseover = () => {
+            issueLink2.style.color = '#3a7bd5';
+            issueLink2.style.borderBottom = '1px dotted #3a7bd5';
         };
         
-        issueLink.onmouseout = () => {
-            issueLink.style.color = '#666';
-            issueLink.style.borderBottom = '1px dotted #999';
+        issueLink2.onmouseout = () => {
+            issueLink2.style.color = '#666';
+            issueLink2.style.borderBottom = '1px dotted #999';
         };
         
-        contactContainer.appendChild(issueLink);
-        rangeContent.appendChild(contactContainer);
+        contactContainer2.appendChild(issueLink2);
+        rangeContent.appendChild(contactContainer2);
         
         rangeDialog.appendChild(rangeContent);
         document.body.appendChild(rangeDialog);
 
-        // Manejar clic en el botón de descarga
+        // Handle download button click
         downloadButton.onclick = () => {
             const startEpisode = parseInt(startInput.input.value, 10);
             const endEpisode = parseInt(endInput.input.value, 10);
@@ -1335,19 +1335,19 @@ async function runCrawler() {
                 startEpisode < 1 || 
                 endEpisode < startEpisode || 
                 endEpisode > allEpisodeLinks.length) {
-                alert('Por favor, introduce un rango de episodios válido.');
+                alert('Por favor ingrese un rango de episodios válido.');
                 return;
             }
 
             const delay = parseInt(delayInput.input.value, 10);
             if (isNaN(delay) || delay < 1000) {
-                alert('Por favor, introduce un valor de retraso válido. (mínimo 1000ms)');
+                alert('Por favor ingrese un valor de retraso válido (mínimo 1000ms).');
                 return;
             }
 
             document.body.removeChild(rangeDialog);
 
-            console.log(`Tarea añadida: Preparando descarga de ${title} desde el episodio ${startEpisode} hasta el ${endEpisode}`);
+            console.log(`Task Appended: Preparing to download ${title} starting from episode ${startEpisode} to ${endEpisode}`);
 
             downloadNovel(title, allEpisodeLinks, startEpisode, endEpisode, delay);
         };
